@@ -30,18 +30,18 @@ int main(int argc, char **argv) {
   fscanf(fp_in, "%d", &nr_echipe);
 
   for (int i = 0; i < nr_echipe; i++) {
-    Player *jucator_curent = NULL;
+    PlayerNode *jucator_curent = NULL;
     int nr_jucatori = 0;
 
     fscanf(fp_in, "%d %[^\n]\n", &nr_jucatori, echipe->name);
 
-    echipe->players = player_new();
-    jucator_curent = echipe->players;
+    echipe->player_list = playernode_new();
+    jucator_curent = echipe->player_list;
 
     for (int j = 0; j < nr_jucatori; j++) {
-      fscanf(fp_in, "%s %s %d\n", jucator_curent->name1, jucator_curent->name2, &jucator_curent->points);
+      fscanf(fp_in, "%s %s %d\n", jucator_curent->data.name1, jucator_curent->data.name2, &jucator_curent->data.points);
       if (j != nr_jucatori - 1) {
-        jucator_curent->next = player_new();
+        jucator_curent->next = playernode_new();
         jucator_curent = jucator_curent->next;
       }
     }
@@ -66,11 +66,49 @@ int main(int argc, char **argv) {
     while (nr_echipe2 * 2 <= nr_echipe) {
       nr_echipe2 *= 2;
     }
-    for (nr_echipe2; nr_echipe2 < nr_echipe; nr_echipe2++)
+    for (nr_echipe; nr_echipe != nr_echipe2; nr_echipe--)
       team_remove_min(&echipe);
     team_write_names(echipe, fp_out);
     break;
-  case 2:
+  case 2: {
+    while (nr_echipe2 * 2 <= nr_echipe) {
+      nr_echipe2 *= 2;
+    }
+    for (nr_echipe; nr_echipe != nr_echipe2; nr_echipe--)
+      team_remove_min(&echipe);
+    team_write_names(echipe, fp_out);
+
+    TeamQueue win = teamqueue_new(nr_echipe);
+    TeamQueue lose = teamqueue_new(nr_echipe);
+    MatchQueue meciuri = matchqueue_new(nr_echipe / 2);
+    int round = 1;
+
+    Team *current = echipe;
+    while (current) {
+      teamqueue_insert(&win, current);
+      current = current->next;
+    }
+
+    while (win.rear >= 1) {
+      fprintf(fp_out, "\n--- ROUND NO:%d\n", round);
+      matchqueue_build(&meciuri, &win);
+      for (int i = meciuri.rear; i >= meciuri.rear; i--) {
+        fprintf(fp_out, "%-32s - %32s\n", meciuri.matches[i].team1->name, meciuri.matches[i].team2->name);
+      }
+      matchqueue_match(&meciuri, &win, &lose);
+      fprintf(fp_out, "\nWINNERS OF ROUND NO:%d\n", round++);
+      for (int i = win.rear; i >= win.front; i--) {
+        for(PlayerNode *jucator = win.teams[i]->player_list; jucator; jucator = jucator->next){
+          jucator->data.points++;
+        }
+        fprintf(fp_out, "%-32s  -  %.2f\n", win.teams[i]->name, playerlist_get_score(win.teams[i]->player_list));
+      }
+    }
+
+    teamqueue_free(&win);
+    teamqueue_free(&lose);
+    matchqueue_free(&meciuri);
+  } break;
   case 3:
   case 4:
     break;
