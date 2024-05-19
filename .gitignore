@@ -1,1 +1,4 @@
 lanParty
+*.o
+test
+out/
