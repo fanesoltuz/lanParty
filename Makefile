@@ -1,4 +1,4 @@
-CC = clang
+CC = gcc
 CFLAGS = -g
 SRCS = main.c team.c player.c
 OBJS = $(SRCS:.c=.o)
