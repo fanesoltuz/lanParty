@@ -1,7 +1,9 @@
 #pragma once
 #include "player.h"
+#include <ctype.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct team_t {
   struct team_t *next;
@@ -11,24 +13,29 @@ struct team_t {
 typedef struct team_t Team;
 
 Team *team_new();
+Team *team_from_file(FILE *fp);
 void team_free(Team *head);
 void team_print(Team *head);
 void team_add_front(Team **head_ref);
-void team_write_names(Team *head, FILE *fp);
 void team_remove_min(Team **head);
+int teamlist_size(Team *team);
+void teamlist_prepare(Team **head_ref);
+void teamlist_write_names(Team *head, FILE *fp);
+void teamlist_write_matches(Team *head, FILE *fp);
 
-struct teamqueue_t {
+struct teamstack_t {
   Team **teams;
   int size;
-  int front, rear;
+  int top;
 };
-typedef struct teamqueue_t TeamQueue;
+typedef struct teamstack_t TeamStack;
 
-TeamQueue teamqueue_new(int size);
-void teamqueue_free(TeamQueue *tq);
-void teamqueue_clear(TeamQueue *tq);
-void teamqueue_insert(TeamQueue *tq, Team *team);
-void teamqueue_print(TeamQueue tq);
+TeamStack teamstack_new(int size);
+void teamstack_free(TeamStack *tq);
+void teamstack_clear(TeamStack *tq);
+void teamstack_insert(TeamStack *tq, Team *team);
+void teamstack_print(TeamStack tq);
+void teamstack_pop(TeamStack *tq);
 
 struct match_t {
   Team *team1, *team2;
@@ -47,5 +54,5 @@ void matchqueue_free(MatchQueue *mq);
 void matchqueue_clear(MatchQueue *mq);
 void matchqueue_insert(MatchQueue *mq, Match match);
 
-void matchqueue_build(MatchQueue *mq, TeamQueue *tq);
-void matchqueue_match(MatchQueue *mq, TeamQueue *winners, TeamQueue *losers);
+void matchqueue_build(MatchQueue *mq, TeamStack *tq);
+void matchqueue_match(MatchQueue *mq, TeamStack *winners, TeamStack *losers);

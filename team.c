@@ -1,5 +1,19 @@
 #include "team.h"
 
+// Utility functions
+static void trim_end_whitespace(char *str) {
+  if (str == NULL)
+    return;
+  int i = 0;
+  while (str[i] != '\0')
+    i++;
+  i--;
+  while (i >= 0 && isspace((unsigned char)str[i])) {
+    str[i] = '\0';
+    i--;
+  }
+}
+
 // TeamList methods
 
 Team *team_new() {
@@ -8,6 +22,40 @@ Team *team_new() {
   new_team->next = NULL;
   new_team->player_list = NULL;
   return new_team;
+}
+
+Team *team_from_file(FILE *fp) {
+  Team *echipe = team_new();
+  int nr_echipe = 0;
+  int nr_echipe2 = 1;
+  fscanf(fp, "%d", &nr_echipe);
+
+  for (int i = 0; i < nr_echipe; i++) {
+    PlayerNode *jucator_curent = NULL;
+    int nr_jucatori = 0;
+    char tempname[64];
+
+    fscanf(fp, "%d %[^\n]\n", &nr_jucatori, tempname);
+    trim_end_whitespace(tempname);
+    strcpy(echipe->name, tempname);
+
+    echipe->player_list = playernode_new();
+    jucator_curent = echipe->player_list;
+
+    for (int j = 0; j < nr_jucatori; j++) {
+      fscanf(fp, "%s %s %d\n", jucator_curent->data.name1,
+             jucator_curent->data.name2, &jucator_curent->data.points);
+      if (j != nr_jucatori - 1) {
+        jucator_curent->next = playernode_new();
+        jucator_curent = jucator_curent->next;
+      }
+    }
+
+    fscanf(fp, "\n");
+    if (i != nr_echipe - 1)
+      team_add_front(&echipe);
+  }
+  return echipe;
 }
 
 void team_free(Team *head) {
@@ -21,6 +69,21 @@ void team_free(Team *head) {
     free(current);
     current = next;
   }
+}
+
+int teamlist_size(Team *team) {
+  int s = 0;
+  for (Team *current = team; current; current = current->next)
+    s++;
+  return s;
+}
+
+void teamlist_prepare(Team **head_ref) {
+  int nr_echipe = teamlist_size(*head_ref), nr_echipe2 = 1;
+  while (nr_echipe2 * 2 <= nr_echipe)
+    nr_echipe2 *= 2;
+  for (; nr_echipe != nr_echipe2; nr_echipe--)
+    team_remove_min(head_ref);
 }
 
 void team_add_front(Team **head_ref) {
@@ -37,10 +100,47 @@ void team_print(Team *head) {
   }
 }
 
-void team_write_names(Team *head, FILE *fp) {
+void teamlist_write_names(Team *head, FILE *fp) {
   for (Team *current = head; current; current = current->next) {
     fprintf(fp, "%s\n", current->name);
   }
+}
+
+void teamlist_write_matches(Team *head, FILE *fp) {
+
+  TeamStack win = teamstack_new(teamlist_size(head));
+  TeamStack lose = teamstack_new(teamlist_size(head));
+  MatchQueue meciuri = matchqueue_new(teamlist_size(head) / 2);
+  int round = 1;
+
+  Team *current = head;
+  while (current) {
+    teamstack_insert(&win, current);
+    current = current->next;
+  }
+
+  while (win.size > 1) {
+    fprintf(fp, "\n--- ROUND NO:%d\n", round);
+    matchqueue_build(&meciuri, &win);
+    for (int i = meciuri.front; i <= meciuri.rear; i++) {
+      fprintf(fp, "%-32s - %32s\n", meciuri.matches[i].team1->name,
+              meciuri.matches[i].team2->name);
+    }
+    matchqueue_match(&meciuri, &win, &lose);
+    fprintf(fp, "\nWINNERS OF ROUND NO:%d\n", round++);
+    for (int i = 0; i < win.size; i++) {
+      for (PlayerNode *jucator = win.teams[i]->player_list; jucator;
+           jucator = jucator->next) {
+        jucator->data.points++;
+      }
+      fprintf(fp, "%-32s  -  %.2f\n", win.teams[i]->name,
+              playerlist_get_score(win.teams[i]->player_list));
+    }
+  }
+
+  teamstack_free(&win);
+  teamstack_free(&lose);
+  matchqueue_free(&meciuri);
 }
 
 void team_remove_min(Team **head) {
@@ -70,38 +170,42 @@ void team_remove_min(Team **head) {
   }
 }
 
-// TeamQueue methods
+// TeamStack methods
 
-TeamQueue teamqueue_new(int size) {
-  TeamQueue tq;
+TeamStack teamstack_new(int size) {
+  TeamStack tq;
   tq.size = 0;
-  tq.rear = -1;
-  tq.front = 0;
+  tq.top = -1;
   tq.teams = (Team **)malloc(sizeof(Team *) * size);
   return tq;
 }
 
-void teamqueue_free(TeamQueue *tq) {
+void teamstack_free(TeamStack *tq) {
   tq->size = 0;
-  tq->rear = -1;
-  tq->front = 0;
+  tq->top = -1;
   free(tq->teams);
 }
 
-void teamqueue_clear(TeamQueue *tq) {
-  tq->front = 0;
-  tq->rear = -1;
+void teamstack_clear(TeamStack *tq) {
+  tq->top = -1;
   tq->size = 0;
 }
 
-void teamqueue_insert(TeamQueue *tq, Team *team) {
-  tq->rear++;
-  tq->teams[tq->rear] = team;
+void teamstack_insert(TeamStack *tq, Team *team) {
+  tq->top++;
+  tq->teams[tq->top] = team;
   tq->size++;
 }
 
-void teamqueue_print(TeamQueue tq) {
-  for (int i = tq.front; i <= tq.rear; i++) {
+void teamstack_pop(TeamStack *tq) {
+  if (tq->top == -1)
+    return;
+  tq->top--;
+  tq->size--;
+}
+
+void teamstack_print(TeamStack tq) {
+  for (int i = 0; i <= tq.top; i++) {
     printf("%s\n", tq.teams[i]->name);
   }
 }
@@ -124,33 +228,31 @@ void matchqueue_free(MatchQueue *mq) {
   free(mq->matches);
 }
 
-void matchqueue_clear(MatchQueue *mq) {
-  mq->rear = -1;
-}
+void matchqueue_clear(MatchQueue *mq) { mq->rear = -1; }
 
 void matchqueue_insert(MatchQueue *mq, Match match) {
   mq->matches[++(mq->rear)] = match;
   mq->size++;
 }
 
-void matchqueue_build(MatchQueue *mq, TeamQueue *tq) {
+void matchqueue_build(MatchQueue *mq, TeamStack *tq) {
   matchqueue_clear(mq);
-  for (int i = tq->front; i < tq->rear; i += 2) {
+  for (int i = 0; i < tq->top; i += 2) {
     matchqueue_insert(mq, (Match){tq->teams[i], tq->teams[i + 1]});
   }
 }
-void matchqueue_match(MatchQueue *mq, TeamQueue *winners, TeamQueue *losers) {
-  winners->rear = -1;
-  losers->rear = -1;
-  for (int i = mq->front; i <= mq->rear; i++) {
-    if (playerlist_get_score(mq->matches[i].team1->player_list) > playerlist_get_score(mq->matches[i].team2->player_list)) {
-      teamqueue_insert(winners, mq->matches[i].team1);
-      teamqueue_insert(losers, mq->matches[i].team2);
-      } else {
-        teamqueue_insert(winners, mq->matches[i].team2);
-      teamqueue_insert(losers, mq->matches[i].team1);
 
-      
+void matchqueue_match(MatchQueue *mq, TeamStack *winners, TeamStack *losers) {
+  teamstack_clear(winners);
+  teamstack_clear(losers);
+  for (int i = mq->rear; i >= mq->front; i--) {
+    if (playerlist_get_score(mq->matches[i].team1->player_list) >
+        playerlist_get_score(mq->matches[i].team2->player_list)) {
+      teamstack_insert(winners, mq->matches[i].team1);
+      teamstack_insert(losers, mq->matches[i].team2);
+    } else {
+      teamstack_insert(winners, mq->matches[i].team2);
+      teamstack_insert(losers, mq->matches[i].team1);
     }
   }
 }

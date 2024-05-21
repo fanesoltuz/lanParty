@@ -38,7 +38,8 @@ void playerlist_free(PlayerNode *head) {
 
 void playerlist_print(PlayerNode *head) {
   for (PlayerNode *current = head; current; current = current->next) {
-    printf("Nume: %s %s Scor: %d\n", current->data.name1, current->data.name2, current->data.points);
+    printf("Nume: %s %s Scor: %d\n", current->data.name1, current->data.name2,
+           current->data.points);
   }
 }
 
