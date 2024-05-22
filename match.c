@@ -76,8 +76,7 @@ void matchqueue_match(MatchQueue *mq, TeamStack *winners, TeamStack *losers) {
   teamstack_clear(winners);
   teamstack_clear(losers);
   for (int i = mq->rear; i >= mq->front; i--) {
-    if (playerlist_get_score(mq->matches[i].team1->player_list) >
-        playerlist_get_score(mq->matches[i].team2->player_list)) {
+    if (playerlist_get_score(mq->matches[i].team1->player_list) > playerlist_get_score(mq->matches[i].team2->player_list)) {
       teamstack_insert(winners, mq->matches[i].team1);
       teamstack_insert(losers, mq->matches[i].team2);
     } else {
@@ -103,8 +102,7 @@ void teamlist_write_matches(Team *head, FILE *fp) {
     fprintf(fp, "\n--- ROUND NO:%d\n", round);
     matchqueue_build(&meciuri, &win);
     for (int i = meciuri.front; i <= meciuri.rear; i++) {
-      fprintf(fp, "%-32s - %32s\n", meciuri.matches[i].team1->name,
-              meciuri.matches[i].team2->name);
+      fprintf(fp, "%-32s - %32s\n", meciuri.matches[i].team1->name, meciuri.matches[i].team2->name);
     }
     matchqueue_match(&meciuri, &win, &lose);
     fprintf(fp, "\nWINNERS OF ROUND NO:%d\n", round++);
@@ -117,5 +115,3 @@ void teamlist_write_matches(Team *head, FILE *fp) {
   teamstack_free(&lose);
   matchqueue_free(&meciuri);
 }
-
-

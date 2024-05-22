@@ -1,7 +1,8 @@
 #include "team.h"
 
 // Utility functions
-static void trim_end_whitespace(char *str) {
+
+void trim_end_whitespace(char *str) {
   if (str == NULL)
     return;
   int i = 0;
@@ -42,8 +43,7 @@ Team *team_from_file(FILE *fp) {
     jucator_curent = echipe->player_list;
 
     for (int j = 0; j < nr_jucatori; j++) {
-      fscanf(fp, "%s %s %d\n", jucator_curent->data.name1,
-             jucator_curent->data.name2, &jucator_curent->data.points);
+      fscanf(fp, "%s %s %d\n", jucator_curent->data.name1, jucator_curent->data.name2, &jucator_curent->data.points);
       if (j != nr_jucatori - 1) {
         jucator_curent->next = playernode_new();
         jucator_curent = jucator_curent->next;
@@ -131,5 +131,3 @@ void team_remove_min(Team **head) {
     free(min_team);
   }
 }
-
-

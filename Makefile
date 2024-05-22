@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wpedantic -std=c99 -g
-SRCS = main.c team.c player.c match.c bst.c
+SRCS = main.c player.c team.c match.c bst.c avl.c
 OBJS = $(SRCS:.c=.o)
 TARGET = lanParty
 
