@@ -2,3 +2,4 @@ lanParty
 *.o
 test
 out/
+vgcore.*

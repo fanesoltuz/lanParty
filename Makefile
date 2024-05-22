@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -g
-SRCS = main.c team.c player.c
+CFLAGS = -Wall -Wpedantic -std=c99 -g
+SRCS = main.c team.c player.c match.c bst.c
 OBJS = $(SRCS:.c=.o)
 TARGET = lanParty
 
@@ -14,6 +14,7 @@ $(TARGET): $(OBJS)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+	rm -r out/
 
 .PHONY: all clean
 
