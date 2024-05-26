@@ -16,5 +16,8 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 	rm -r out/
 
+check:
+	./checker.sh
+
 .PHONY: all clean
 

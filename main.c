@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     teamlist_write_names(echipe, fp_out);
     teamlist_write_matches(echipe, fp_out);
     teambst_write_first_teams(echipe, 8, fp_out);
-    teamavl_write_teams_level(echipe, 8, 2, fp_out);
+    // teamavl_write_teams_level(echipe, 8, 2, fp_out);
     break;
   default:
     team_free(echipe);

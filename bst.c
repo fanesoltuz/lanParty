@@ -1,8 +1,10 @@
 #include "bst.h"
 
-TeamBSTNode *teambstnode_new() {
+TeamBSTNode *teambstnode_new(float score, char *name) {
   TeamBSTNode *new_node = (TeamBSTNode *)malloc(sizeof(TeamBSTNode));
-  new_node->team_ref = NULL;
+  new_node->team.name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+  new_node->team.score = score;
+  strcpy(new_node->team.name, name);
   new_node->left = NULL;
   new_node->right = NULL;
   return new_node;
@@ -11,26 +13,27 @@ TeamBSTNode *teambstnode_new() {
 void teambst_free(TeamBSTNode *root) {
   if (!root)
     return;
-  teambst_free(root->right);
   teambst_free(root->left);
+  teambst_free(root->right);
+  free(root->team.name);
   free(root);
 }
 
-void teambst_insert(TeamBSTNode **root_ref, Team *team_ref) {
+void teambst_insert(TeamBSTNode **root_ref, float score, char *name) {
   if (!*root_ref) {
-    *root_ref = teambstnode_new();
-    (*root_ref)->team_ref = team_ref;
+    *root_ref = teambstnode_new(score, name);
     return;
   }
-  if (playerlist_get_points(team_ref->player_list) < playerlist_get_points((*root_ref)->team_ref->player_list)) {
-    teambst_insert(&((*root_ref)->left), team_ref);
-  } else if (playerlist_get_points(team_ref->player_list) > playerlist_get_points((*root_ref)->team_ref->player_list)) {
-    teambst_insert(&((*root_ref)->right), team_ref);
+
+  if (score < (*root_ref)->team.score) {
+    teambst_insert(&((*root_ref)->left), score, name);
+  } else if (score > (*root_ref)->team.score) {
+    teambst_insert(&((*root_ref)->right), score, name);
   } else {
-    if (strcmp(team_ref->name, (*root_ref)->team_ref->name) < 0) {
-      teambst_insert(&((*root_ref)->left), team_ref);
+    if (strcmp(name, (*root_ref)->team.name) < 0) {
+      teambst_insert(&((*root_ref)->left), score, name);
     } else {
-      teambst_insert(&((*root_ref)->right), team_ref);
+      teambst_insert(&((*root_ref)->right), score, name);
     }
   }
 }
@@ -38,9 +41,7 @@ void teambst_insert(TeamBSTNode **root_ref, Team *team_ref) {
 void teambst_write_traverse(TeamBSTNode *root, FILE *fp) {
   if (root) {
     teambst_write_traverse(root->right, fp);
-    if (root->team_ref)
-      fprintf(fp, "%-32s  -  %.2f\n", root->team_ref->name,
-              playerlist_get_score(root->team_ref->player_list));
+    fprintf(fp, "%-32s  -  %.2f\n", root->team.name, root->team.score);
     teambst_write_traverse(root->left, fp);
   }
 }
@@ -65,8 +66,9 @@ TeamBSTNode *teambst_generate(Team *head, int team_cnt) {
         jucator->data.points++;
   }
 
-  for (int i = 0; i < team_cnt; i++) {
-    teambst_insert(&root, win.teams[i]);
+  for (int i = 0; i <= win.top; i++) {
+    teambst_insert(&root, playerlist_get_score(win.teams[i]->player_list), win.teams[i]->name);
+    // printf("teamavl_insert(&root, %.2f, \"%s\");\n", playerlist_get_score(win.teams[i]->player_list), win.teams[i]->name);
   }
   teamstack_free(&win);
   teamstack_free(&lose);
