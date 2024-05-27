@@ -1,23 +1,17 @@
-CC = gcc
-CFLAGS = -Wall -Wpedantic -std=c99 -g
-SRCS = main.c player.c team.c match.c bst.c avl.c
-OBJS = $(SRCS:.c=.o)
-TARGET = lanParty
+SURSE = main.c player.c team.c match.c bst.c avl.c
+OBIECTE = $(SURSE:.c=.o)
 
-all: $(TARGET)
+all: lanParty
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+lanParty: $(OBIECTE)
+	gcc -Wall -Wpedantic $(OBIECTE) -o lanParty
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	gcc -Wall -Wpedantic -std=c99 -g -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBIECTE) lanParty
 	rm -r out/
-
-check:
-	./checker.sh
 
 .PHONY: all clean
 

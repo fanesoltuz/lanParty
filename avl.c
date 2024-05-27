@@ -7,7 +7,7 @@ TeamAVLNode *teamavlnode_new(float score, char *name) {
   strcpy(new_node->team.name, name);
   new_node->left = NULL;
   new_node->right = NULL;
-  new_node->height = 1;
+  new_node->height = 0;
   return new_node;
 }
 
@@ -41,14 +41,14 @@ int teamavl_get_balance(TeamAVLNode *root) {
 }
 
 TeamAVLNode *teamavlnode_rot_left(TeamAVLNode *node) {
-  if (!node || !node->left)
+  if (!node || !node->right)
     return node;
 
   TeamAVLNode *new_root = node->right;
   TeamAVLNode *temp = new_root->left;
 
   new_root->left = node;
-  new_root->right = temp;
+  node->right = temp;
 
   teamavl_update_height(node);
   teamavl_update_height(new_root);
@@ -64,7 +64,7 @@ TeamAVLNode *teamavlnode_rot_right(TeamAVLNode *node) {
   TeamAVLNode *temp = new_root->right;
 
   new_root->right = node;
-  new_root->left = temp;
+  node->left = temp;
 
   teamavl_update_height(new_root);
   teamavl_update_height(node);
@@ -106,64 +106,38 @@ void teamavl_insert(TeamAVLNode **root_ref, float score, char *name) {
   }
   teamavl_balance(root_ref);
 }
+
 void teamavl_print_level(TeamAVLNode *root, int level) {
   if (!root)
     return;
   if (level == 0) {
-    printf("%s\n", root->team.name);
     return;
   }
   teamavl_print_level(root->right, level - 1);
   teamavl_print_level(root->left, level - 1);
 }
 
-TeamAVLNode *teamavl_generate(Team *head, int team_cnt) {
-  TeamStack win = teamstack_new(teamlist_size(head));
-  TeamStack lose = teamstack_new(teamlist_size(head));
-  MatchQueue meciuri = matchqueue_new(teamlist_size(head) / 2);
-  TeamAVLNode *root = NULL;
-  Team *current = head;
-
-  while (current) {
-    teamstack_insert(&win, current);
-    current = current->next;
-  }
-
-  while (win.size > team_cnt) {
-    matchqueue_build(&meciuri, &win);
-    matchqueue_match(&meciuri, &win, &lose);
-    for (int i = 0; i < win.size; i++)
-      for (PlayerNode *jucator = win.teams[i]->player_list; jucator; jucator = jucator->next)
-        jucator->data.points++;
-  }
-
-  for (int i = 0; i <= win.top; i++) {
-    teamavl_insert(&root, playerlist_get_score(win.teams[i]->player_list), win.teams[i]->name);
-    printf("%s\n", win.teams[i]->name);
-  }
-  puts("\n");
-
-  teamstack_free(&win);
-  teamstack_free(&lose);
-  matchqueue_free(&meciuri);
-  return root;
-}
-
 void teamavl_write_level(TeamAVLNode *root, int level, FILE *fp) {
   if (!root)
     return;
-  if (level == 0) {
-    fprintf(fp, "%s\n", root->team.name);
-    return;
-  }
   teamavl_write_level(root->right, level - 1, fp);
   teamavl_write_level(root->left, level - 1, fp);
 }
 
+void bst_to_avl(TeamAVLNode **avl, TeamBSTNode *bst) {
+  if (!bst)
+    return;
+  bst_to_avl(avl, bst->left);
+  teamavl_insert(avl, bst->team.score, bst->team.name);
+  bst_to_avl(avl, bst->right);
+}
+
 void teamavl_write_teams_level(Team *teams, int team_cnt, int level, FILE *fp) {
-  TeamAVLNode *root = teamavl_generate(teams, team_cnt);
+  TeamBSTNode *bst_root = teambst_generate(teams, team_cnt);
   fprintf(fp, "\nTHE LEVEL %d TEAMS ARE:\n", level);
-  teamavl_write_level(root, level, fp);
-  teamavl_print_level(root, level);
-  teamavl_free(root);
+  TeamAVLNode *avl_root = NULL;
+  bst_to_avl(&avl_root, bst_root);
+  teamavl_write_level(avl_root, level, fp);
+  teamavl_print_level(avl_root, level);
+  teamavl_free(avl_root);
 }

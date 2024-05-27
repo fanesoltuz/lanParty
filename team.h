@@ -13,7 +13,7 @@ struct team_t {
 typedef struct team_t Team;
 
 Team *team_new();
-Team *team_from_file(FILE *fp);
+Team *team_from_file(FILE *fp); // Constructor din fisier
 void team_free(Team *head);
 void team_print(Team *head);
 void team_add_front(Team **head_ref);

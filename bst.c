@@ -68,7 +68,6 @@ TeamBSTNode *teambst_generate(Team *head, int team_cnt) {
 
   for (int i = 0; i <= win.top; i++) {
     teambst_insert(&root, playerlist_get_score(win.teams[i]->player_list), win.teams[i]->name);
-    // printf("teamavl_insert(&root, %.2f, \"%s\");\n", playerlist_get_score(win.teams[i]->player_list), win.teams[i]->name);
   }
   teamstack_free(&win);
   teamstack_free(&lose);
