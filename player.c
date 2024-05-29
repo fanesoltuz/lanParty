@@ -9,12 +9,13 @@ Player player_new() {
   new_player.points = 0;
   return new_player;
 }
-
+//aloca memorie dinamica
 void player_free(Player player) {
   free(player.name1);
   free(player.name2);
   player.points = 0;
 }
+//elibereaza memorie dinamica
 
 PlayerNode *playernode_new() {
   PlayerNode *new_playerlist = (PlayerNode *)malloc(sizeof(PlayerNode));
@@ -22,6 +23,7 @@ PlayerNode *playernode_new() {
   new_playerlist->data = player_new();
   return new_playerlist;
 }
+//aloca memorie pt nod lista jucator 
 
 void playerlist_free(PlayerNode *head) {
   if (!head)
@@ -35,6 +37,7 @@ void playerlist_free(PlayerNode *head) {
     current = next;
   }
 }
+//elibereaza lista de jucatori
 
 void playerlist_print(PlayerNode *head) {
   for (PlayerNode *current = head; current; current = current->next) {
@@ -54,6 +57,7 @@ float playerlist_get_score(PlayerNode *head) {
   }
   return (float)s / c;
 }
+//calculeaza scor echipa
 
 int playerlist_get_points(PlayerNode *head) {
   if (!head)
