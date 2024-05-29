@@ -14,6 +14,7 @@ void trim_end_whitespace(char *str) {
     i--;
   }
 }
+//elimina caractere de la finalul unui string(caractere spatiu)
 
 // TeamList methods
 
@@ -35,8 +36,8 @@ Team *team_from_file(FILE *fp) {
     int nr_jucatori = 0;
     char tempname[64];
 
-    fscanf(fp, "%d %[^\n]\n", &nr_jucatori, tempname);
-    trim_end_whitespace(tempname);
+    fscanf(fp, "%d %[^\n]\n", &nr_jucatori, tempname); //citeste scor si nume echipa folosind scanset(in loc de fgets)
+    trim_end_whitespace(tempname); 
     strcpy(echipe->name, tempname);
 
     echipe->player_list = playernode_new();
