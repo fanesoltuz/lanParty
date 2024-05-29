@@ -9,6 +9,7 @@ TeamBSTNode *teambstnode_new(float score, char *name) {
   new_node->right = NULL;
   return new_node;
 }
+//creare nod pt nume echipa si scor
 
 void teambst_free(TeamBSTNode *root) {
   if (!root)
@@ -45,6 +46,7 @@ void teambst_write_traverse(TeamBSTNode *root, FILE *fp) {
     teambst_write_traverse(root->left, fp);
   }
 }
+//parcurgere arbore
 
 TeamBSTNode *teambst_generate(Team *head, int team_cnt) {
   TeamStack win = teamstack_new(teamlist_size(head));
@@ -74,6 +76,7 @@ TeamBSTNode *teambst_generate(Team *head, int team_cnt) {
   matchqueue_free(&meciuri);
   return root;
 }
+//generare ultimele n echipe 
 
 void teambst_write_first_teams(Team *teams, int team_cnt, FILE *fp) {
   TeamBSTNode *root = teambst_generate(teams, 8);
@@ -81,3 +84,4 @@ void teambst_write_first_teams(Team *teams, int team_cnt, FILE *fp) {
   teambst_write_traverse(root, fp);
   teambst_free(root);
 }
+//primele n echipe  in fisier 
