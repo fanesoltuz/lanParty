@@ -1,4 +1,6 @@
 #include "avl.h"
+//Se folosesc aceleasi metode ca n arborele bst, dar se adauga o functie pt balansare care este apelata la fiecare inserare
+//functia de balansare nu functioneaza corespunzator 
 
 TeamAVLNode *teamavlnode_new(float score, char *name) {
   TeamAVLNode *new_node = (TeamAVLNode *)malloc(sizeof(TeamAVLNode));
