@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     puts("Cerinta invalida!");
     return -1;
   }
-
+//functile aferente cerintelor elibereaza memoria 
   team_free(echipe);
   fclose(fp_out);
   return 0;
