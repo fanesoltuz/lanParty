@@ -9,6 +9,7 @@ TeamStack teamstack_new(int size) {
   tq.teams = (Team **)malloc(sizeof(Team *) * size);
   return tq;
 }
+//creare stiva echipe
 
 void teamstack_free(TeamStack *tq) {
   tq->size = 0;
@@ -33,6 +34,7 @@ void teamstack_pop(TeamStack *tq) {
   tq->top--;
   tq->size--;
 }
+//scoate ultima echipa
 
 void teamstack_print(TeamStack tq) {
   for (int i = 0; i <= tq.top; i++) {
