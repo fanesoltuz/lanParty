@@ -44,7 +44,7 @@ void teamstack_print(TeamStack tq) {
 
 // MatchQueue methods
 
-MatchQueue matchqueue_new(int size) {
+MatchQueue matchqueue_new(int size) { //creeaza o noua coada de meciuri
   MatchQueue mq;
   mq.size = 0;
   mq.rear = -1;
@@ -53,7 +53,7 @@ MatchQueue matchqueue_new(int size) {
   return mq;
 }
 
-void matchqueue_free(MatchQueue *mq) {
+void matchqueue_free(MatchQueue *mq) {  //elibereaza memoria folosita de coada de meciuri 
   mq->size = 0;
   mq->rear = -1;
   mq->front = 0;
@@ -72,7 +72,7 @@ void matchqueue_build(MatchQueue *mq, TeamStack *tq) {
   for (int i = 0; i < tq->top; i += 2) {
     matchqueue_insert(mq, (Match){tq->teams[i], tq->teams[i + 1]});
   }
-}
+} //construieste coada de meciuri dintr-o stiva de echipe 
 
 void matchqueue_match(MatchQueue *mq, TeamStack *winners, TeamStack *losers) {
   teamstack_clear(winners);
@@ -87,7 +87,7 @@ void matchqueue_match(MatchQueue *mq, TeamStack *winners, TeamStack *losers) {
     }
   }
 }
-
+//statistica meciurilor
 void teamlist_write_matches(Team *head, FILE *fp) {
   TeamStack win = teamstack_new(teamlist_size(head));
   TeamStack lose = teamstack_new(teamlist_size(head));
@@ -117,3 +117,4 @@ void teamlist_write_matches(Team *head, FILE *fp) {
   teamstack_free(&lose);
   matchqueue_free(&meciuri);
 }
+//scrie meciurile si rezultatele echipelor intr-un fisier
