@@ -78,7 +78,7 @@ int teamlist_size(Team *team) {
   return s;
 }
 
-void teamlist_prepare(Team **head_ref) {
+void teamlist_prepare(Team **head_ref) { //pregateste nr de echipe sa fie putere a lui 2
   int nr_echipe = teamlist_size(*head_ref), nr_echipe2 = 1;
   while (nr_echipe2 * 2 <= nr_echipe)
     nr_echipe2 *= 2;
@@ -92,7 +92,7 @@ void team_add_front(Team **head_ref) {
   *head_ref = new_head;
 }
 
-void team_print(Team *head) {
+void team_print(Team *head) {  //scrie toate detaliile despre echipe
   for (Team *current = head; current; current = current->next) {
     printf("\nEchipa: %s\n", current->name);
     playerlist_print(current->player_list);
@@ -100,13 +100,13 @@ void team_print(Team *head) {
   }
 }
 
-void teamlist_write_names(Team *head, FILE *fp) {
+void teamlist_write_names(Team *head, FILE *fp) {  //scrie numele fiecarei echipe dintr-un fisier
   for (Team *current = head; current; current = current->next) {
     fprintf(fp, "%s\n", current->name);
   }
 }
 
-void team_remove_min(Team **head) {
+void team_remove_min(Team **head) { //elimina echipa cu cele mai putine puncte
   if (!head || !*head)
     return;
   int min = INT_MAX;
